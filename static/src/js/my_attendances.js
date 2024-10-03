@@ -1,9 +1,11 @@
 odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
-   /**
-    * This class is used to get the checkin/out location of employee
-    */
+    /**
+     * This class is used to get the check-in/out location of employees
+     */
     "use strict";
-    console.log('messi')
+
+    console.log('messi');
+
     var MyAttendances = require("hr_attendance.my_attendances");
     var KioskConfirm = require("hr_attendance.kiosk_confirm");
     const session = require("web.session");
@@ -12,9 +14,23 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
     var QWeb = core.qweb;
     var latitude;
     var longitude;
+
     MyAttendances.include({
+        start: function() {
+            // Initialize attendance object with check_in having a clone method
+            this.attendance = {
+                check_in: {
+                    clone: function() {
+                        return Object.assign({}, this); // or any other cloning logic you want
+                    },
+                    // Other properties or methods can be defined here
+                }
+            };
+            this._super.apply(this, arguments); // Ensure parent class start is called
+        },
+
         update_attendance: function() {
-        //To get current position of the employee
+            // To get the current position of the employee
             var self = this;
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
@@ -28,8 +44,8 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                                 model: 'hr.employee',
                                 method: 'attendance_manual',
                                 args: [
-                                [self.employee.id], 'hr_attendance.hr_attendance_action_my_attendances'
-                            ],
+                                    [self.employee.id], 'hr_attendance.hr_attendance_action_my_attendances'
+                                ],
                                 context: ctx,
                             })
                             .then(function(result) {
@@ -85,12 +101,23 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                     });
             }
         },
+
+        welcome_message: function() {
+            // Ensure check_in is defined and has a clone method
+            if (this.attendance && this.attendance.check_in && typeof this.attendance.check_in.clone === 'function') {
+                var clonedCheckIn = this.attendance.check_in.clone();
+                // Continue with your logic using clonedCheckIn...
+            } else {
+                console.error('check_in is not defined or clone is not a function');
+            }
+        },
     });
-   KioskConfirm.include({
+
+    KioskConfirm.include({
         events: _.extend(KioskConfirm.prototype.events, {
             "click .o_hr_attendance_sign_in_out_icon": _.debounce(
                 function() {
-                //  Function to do on clicking sign out
+                    // Function to do on clicking sign out
                     var self = this;
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(function(position) {
@@ -125,7 +152,7 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                                     var MyDialog = new Dialog(null, {
                                         title: error.__proto__.constructor.name,
                                         size: "medium",
-                                        $content: self.$el.find('<main/>', {
+                                        $content: self.$('<main/>', {
                                             role: 'alert',
                                             text: error['message'] + ". Also check your site connection is secured!",
                                         }),
@@ -147,7 +174,7 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
             ),
             "click .o_hr_attendance_pin_pad_button_ok": _.debounce(
                 function() {
-            //    Pin pad button
+                    // Pin pad button
                     var self = this;
                     this.pin_pad = true;
                     if (navigator.geolocation) {
@@ -190,7 +217,7 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                                     var MyDialog = new Dialog(null, {
                                         title: error.__proto__.constructor.name,
                                         size: "medium",
-                                        $content: self.$.el.find('<main/>', {
+                                        $content: self.$el.find('<main/>', {
                                             role: 'alert',
                                             text: error['message'] + ". Also check your site connection is secured!",
                                         }),
