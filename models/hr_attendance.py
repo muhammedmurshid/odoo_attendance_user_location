@@ -40,6 +40,11 @@ class HrAttendance(models.Model):
                                      help="Check out longitude of the User")
     checkin_location = fields.Char(string='Check In Location Link', store=True,
                                    help="Check in location link of the User")
+    in_location = fields.Char(string='Check In Location', store=True,
+                                   help="Check in location link of the User")
     checkout_location = fields.Char(string='Check Out Location Link',
                                     store=True,
                                     help="Check out location link of the User")
+    out_location = fields.Char(string='Check Out Location',
+                               store=True,
+                               help="Check out location link of the User")

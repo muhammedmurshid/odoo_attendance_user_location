@@ -101,10 +101,11 @@ class HrEmployee(models.AbstractModel):
             vals = {
                 'employee_id': self.id,
                 'checkin_address': location.address,
-                'checkin_latitude': latitudes,
-                'checkin_longitude': longitudes,
-                'checkin_location': 'https://www.google.com/maps/place/'
-                                    + location.address,
+                # 'checkin_latitude': latitudes,
+                # 'checkin_longitude': longitudes,
+                # 'checkin_location': 'https://www.google.com/maps/place/'
+                #                     + location.address,
+                'in_location': location.address,
             }
             return self.env['hr.attendance'].create(vals)
         attendance = self.env['hr.attendance'].search(
@@ -112,10 +113,11 @@ class HrEmployee(models.AbstractModel):
         if attendance:
             attendance.write({
                 'checkout_address': location.address,
-                'checkout_latitude': latitudes,
-                'checkout_longitude': longitudes,
-                'checkout_location': 'https://www.google.com/maps/place/'
-                                     + location.address,
+                # 'checkout_latitude': latitudes,
+                # 'checkout_longitude': longitudes,
+                # 'checkout_location': 'https://www.google.com/maps/place/'
+                #                      + location.address,
+                'out_location': location.address,
             })
             attendance.check_out = action_date
         else:
