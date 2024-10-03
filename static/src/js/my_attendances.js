@@ -114,6 +114,12 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
             }, 200, true),
         }),
 
+        getCurrentPosition: function() {
+            return new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject);
+            });
+        },
+
         handleKioskSignInOut: function(employee_id, next_action) {
             if (navigator.geolocation) {
                 this.getCurrentPosition().then((position) => {
