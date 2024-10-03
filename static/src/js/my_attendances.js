@@ -92,6 +92,9 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
         },
 
         welcome_message: function() {
+            console.log('this:', this); // Debugging statement
+            console.log('this.attendance:', this.attendance); // Debugging statement
+
             if (this.attendance?.check_in?.clone) {
                 var clonedCheckIn = this.attendance.check_in.clone();
                 // Continue with your logic using clonedCheckIn...

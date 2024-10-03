@@ -129,3 +129,4 @@ class HrEmployee(models.AbstractModel):
                                          ' human resources.') % {
                                            'empl_name': self.sudo().name})
         return attendance
+
