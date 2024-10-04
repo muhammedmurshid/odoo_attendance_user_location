@@ -62,46 +62,46 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
             }
         },
 
-        handleGeolocationError: function(error) {
-            const errorMessage = error.message || "Unable to get location.";
-            var MyDialog = new Dialog(null, {
-                title: error.__proto__.constructor.name,
-                size: "medium",
-                $content: this.$('<main/>', {
-                    role: 'alert',
-                    text: errorMessage + ". Also check your site connection is secured!",
-                }),
-                buttons: [{
-                    text: "OK",
-                    classes: "btn-primary",
-                    click: function() {
-                        MyDialog.close();
-                    }
-                }]
-            });
-            MyDialog.open();
-        },
-
-        performAttendanceAction: function() {
-            this._rpc({
-                model: HR_EMPLOYEE_MODEL,
-                method: 'attendance_manual',
-                args: [[this.employee.id], ACTION_ATTENDANCE],
-                context: session.user_context,
-            }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
-        },
-
-        welcome_message: function() {
-            console.log('this:', this); // Debugging statement
-            console.log('this.attendance:', this.attendance); // Debugging statement
-
-            if (this.attendance?.check_in?.clone) {
-                var clonedCheckIn = this.attendance.check_in.clone();
-                // Continue with your logic using clonedCheckIn...
-            } else {
-                console.error('check_in is not defined or clone is not a function');
-            }
-        },
+//        handleGeolocationError: function(error) {
+//            const errorMessage = error.message || "Unable to get location.";
+//            var MyDialog = new Dialog(null, {
+//                title: error.__proto__.constructor.name,
+//                size: "medium",
+//                $content: this.$('<main/>', {
+//                    role: 'alert',
+//                    text: errorMessage + ". Also check your site connection is secured!",
+//                }),
+//                buttons: [{
+//                    text: "OK",
+//                    classes: "btn-primary",
+//                    click: function() {
+//                        MyDialog.close();
+//                    }
+//                }]
+//            });
+//            MyDialog.open();
+//        },
+//
+//        performAttendanceAction: function() {
+//            this._rpc({
+//                model: HR_EMPLOYEE_MODEL,
+//                method: 'attendance_manual',
+//                args: [[this.employee.id], ACTION_ATTENDANCE],
+//                context: session.user_context,
+//            }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
+//        },
+//
+//        welcome_message: function() {
+//            console.log('this:', this); // Debugging statement
+//            console.log('this.attendance:', this.attendance); // Debugging statement
+//
+//            if (this.attendance && this.attendance.check_in && this.attendance.check_in.clone) {
+//                var clonedCheckIn = this.attendance.check_in.clone();
+//                // Continue with your logic using clonedCheckIn...
+//            } else {
+//                console.error('check_in is not defined or clone is not a function');
+//            }
+//        },
     });
 
     KioskConfirm.include({
