@@ -88,7 +88,11 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                 method: 'attendance_manual',
                 args: [[this.employee.id], ACTION_ATTENDANCE],
                 context: session.user_context,
-            }).then(this.handleResult.bind(this));
+            }).then(this.handleResult ? this.handleResult.bind(this) : () => {
+                console.error("handleResult is not defined");
+            }).catch(this.handleGeolocationError ? this.handleGeolocationError.bind(this) : (err) => {
+                console.error("handleGeolocationError is not defined:", err);
+            });
         },
 
         welcome_message: function() {
@@ -133,7 +137,11 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                         args: [[employee_id], next_action],
                         context: ctx,
                     });
-                }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
+                }).then(this.handleResult ? this.handleResult.bind(this) : () => {
+                    console.error("handleResult is not defined");
+                }).catch(this.handleGeolocationError ? this.handleGeolocationError.bind(this) : (err) => {
+                    console.error("handleGeolocationError is not defined:", err);
+                });
             }
         },
 
@@ -151,7 +159,11 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                         args: [[employee_id], next_action, pin],
                         context: session.user_context,
                     });
-                }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
+                }).then(this.handleResult ? this.handleResult.bind(this) : () => {
+                    console.error("handleResult is not defined");
+                }).catch(this.handleGeolocationError ? this.handleGeolocationError.bind(this) : (err) => {
+                    console.error("handleGeolocationError is not defined:", err);
+                });
             }
         },
     });
