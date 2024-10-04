@@ -88,11 +88,7 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                 method: 'attendance_manual',
                 args: [[this.employee.id], ACTION_ATTENDANCE],
                 context: session.user_context,
-            }).then(this.handleResult ? this.handleResult.bind(this) : () => {
-                console.error("handleResult is not defined");
-            }).catch(this.handleGeolocationError ? this.handleGeolocationError.bind(this) : (err) => {
-                console.error("handleGeolocationError is not defined:", err);
-            });
+            }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
         },
 
         welcome_message: function() {
@@ -137,11 +133,7 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                         args: [[employee_id], next_action],
                         context: ctx,
                     });
-                }).then(this.handleResult ? this.handleResult.bind(this) : () => {
-                    console.error("handleResult is not defined");
-                }).catch(this.handleGeolocationError ? this.handleGeolocationError.bind(this) : (err) => {
-                    console.error("handleGeolocationError is not defined:", err);
-                });
+                }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
             }
         },
 
@@ -159,12 +151,39 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                         args: [[employee_id], next_action, pin],
                         context: session.user_context,
                     });
-                }).then(this.handleResult ? this.handleResult.bind(this) : () => {
-                    console.error("handleResult is not defined");
-                }).catch(this.handleGeolocationError ? this.handleGeolocationError.bind(this) : (err) => {
-                    console.error("handleGeolocationError is not defined:", err);
+                }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
+            }
+        },
+
+        handleResult: function(result) { // Define handleResult for KioskConfirm
+            if (result.action) {
+                this.do_action(result.action);
+            } else if (result.warning) {
+                this.displayNotification({
+                    title: result.warning,
+                    type: 'danger'
                 });
             }
+        },
+
+        handleGeolocationError: function(error) { // Define handleGeolocationError for KioskConfirm
+            const errorMessage = error.message || "Unable to get location.";
+            var MyDialog = new Dialog(null, {
+                title: error.__proto__.constructor.name,
+                size: "medium",
+                $content: this.$('<main/>', {
+                    role: 'alert',
+                    text: errorMessage + ". Also check your site connection is secured!",
+                }),
+                buttons: [{
+                    text: "OK",
+                    classes: "btn-primary",
+                    click: function() {
+                        MyDialog.close();
+                    }
+                }]
+            });
+            MyDialog.open();
         },
     });
 });
