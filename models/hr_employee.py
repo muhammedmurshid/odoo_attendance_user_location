@@ -97,14 +97,15 @@ class HrEmployee(models.AbstractModel):
         geolocator = Nominatim(user_agent='my-app')
         # Get the location using the geolocator object
         location = geolocator.reverse(str(latitudes) + ', ' + str(longitudes))
+        print(location, 'location')
         if self.attendance_state != 'checked_in':
             vals = {
                 'employee_id': self.id,
                 'checkin_address': location.address,
-                # 'checkin_latitude': latitudes,
-                # 'checkin_longitude': longitudes,
-                # 'checkin_location': 'https://www.google.com/maps/place/'
-                #                     + location.address,
+                'checkin_latitude': latitudes,
+                'checkin_longitude': longitudes,
+                'checkin_location': 'https://www.google.com/maps/place/'
+                                    + location.address,
                 'in_location': location.address,
             }
             return self.env['hr.attendance'].create(vals)
@@ -113,10 +114,10 @@ class HrEmployee(models.AbstractModel):
         if attendance:
             attendance.write({
                 'checkout_address': location.address,
-                # 'checkout_latitude': latitudes,
-                # 'checkout_longitude': longitudes,
-                # 'checkout_location': 'https://www.google.com/maps/place/'
-                #                      + location.address,
+                'checkout_latitude': latitudes,
+                'checkout_longitude': longitudes,
+                'checkout_location': 'https://www.google.com/maps/place/'
+                                     + location.address,
                 'out_location': location.address,
             })
             attendance.check_out = action_date
