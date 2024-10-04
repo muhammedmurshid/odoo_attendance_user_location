@@ -91,17 +91,6 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
             }).then(this.handleResult.bind(this));
         },
 
-//        welcome_message: function() {
-//            console.log('this:', this); // Debugging statement
-//            console.log('this.attendance:', this.attendance); // Debugging statement
-//
-//            if (this.attendance?.check_in?.clone) {
-//                var clonedCheckIn = this.attendance.check_in.clone();
-//                // Continue with your logic using clonedCheckIn...
-//            } else {
-//                console.error('check_in is not defined or clone is not a function');
-//            }
-//        },
     });
 
     KioskConfirm.include({
