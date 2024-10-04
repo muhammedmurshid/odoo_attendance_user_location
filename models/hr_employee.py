@@ -93,22 +93,40 @@ class HrEmployee(models.AbstractModel):
         """
         self.ensure_one()
         action_date = fields.Datetime.now()
+
+        # Validate latitudes and longitudes
+        if latitudes is None or longitudes is None:
+            raise exceptions.UserError(_('Latitude and longitude must be provided.'))
+
+        # Log the latitudes and longitudes for debugging
+        print(f"Latitude: {latitudes}, Longitude: {longitudes}")
+
         # Create a geolocator object
         geolocator = Nominatim(user_agent='my-app')
-        # Get the location using the geolocator object
-        location = geolocator.reverse(str(latitudes) + ', ' + str(longitudes))
+
+        # Attempt to reverse geocode
+        try:
+            location = geolocator.reverse(f"{latitudes}, {longitudes}")
+        except Exception as e:
+            raise exceptions.UserError(_('Error retrieving location: %s') % str(e))
+
+        # Ensure location is valid
+        if location is None:
+            raise exceptions.UserError(_('Could not find location for the given coordinates.'))
+
         print(location, 'location')
+
         if self.attendance_state != 'checked_in':
             vals = {
                 'employee_id': self.id,
                 'checkin_address': location.address,
                 'checkin_latitude': latitudes,
                 'checkin_longitude': longitudes,
-                'checkin_location': 'https://www.google.com/maps/place/'
-                                    + location.address,
+                'checkin_location': 'https://www.google.com/maps/place/' + location.address,
                 'in_location': location.address,
             }
             return self.env['hr.attendance'].create(vals)
+
         attendance = self.env['hr.attendance'].search(
             [('employee_id', '=', self.id), ('check_out', '=', False)], limit=1)
         if attendance:
@@ -116,18 +134,14 @@ class HrEmployee(models.AbstractModel):
                 'checkout_address': location.address,
                 'checkout_latitude': latitudes,
                 'checkout_longitude': longitudes,
-                'checkout_location': 'https://www.google.com/maps/place/'
-                                     + location.address,
+                'checkout_location': 'https://www.google.com/maps/place/' + location.address,
                 'out_location': location.address,
             })
             attendance.check_out = action_date
         else:
-            raise exceptions.UserError(_('Cannot perform check out on '
-                                         '%(empl_name)s, could not find '
-                                         'corresponding check in.'
-                                         ' Your attendances have probably been '
-                                         'modified manually by'
-                                         ' human resources.') % {
-                                           'empl_name': self.sudo().name})
+            raise exceptions.UserError(
+                _('Cannot perform check out on %(empl_name)s, could not find corresponding check in. Your attendances have probably been modified manually by human resources.') % {
+                    'empl_name': self.sudo().name
+                })
         return attendance
 

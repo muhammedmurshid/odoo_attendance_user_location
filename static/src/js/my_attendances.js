@@ -13,21 +13,12 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
 
     MyAttendances.include({
         start: function() {
-            // Call the parent class start method first
+            this.attendance = {
+                check_in: {
+                    clone: () => Object.assign({}, this) // Arrow function to maintain context
+                }
+            };
             this._super.apply(this, arguments);
-            console.log("Start method called. Initializing attendance...");
-
-            // Initialize the attendance property
-            this.attendance = this.attendance || {}; // Ensure attendance is initialized
-            this.attendance.check_in = this.attendance.check_in || {}; // Ensure check_in is initialized
-
-            // Check if attendance.check_in is available before assigning clone
-            if (this.attendance.check_in) {
-                this.attendance.check_in.clone = this._cloneObject.bind(this, this.attendance.check_in);
-                console.log("Attendance check_in initialized:", this.attendance.check_in);
-            } else {
-                console.error("Error: attendance.check_in is undefined.");
-            }
         },
 
         update_attendance: function() {
@@ -100,15 +91,16 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
             }).then(this.handleResult.bind(this));
         },
 
-        // Custom clone function
-        _cloneObject: function(obj) {
-            var clonedObj = {};
-            for (var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    clonedObj[key] = obj[key];
-                }
+        welcome_message: function() {
+            console.log('this:', this); // Debugging statement
+            console.log('this.attendance:', this.attendance); // Debugging statement
+
+            if (this.attendance?.check_in?.clone) {
+                var clonedCheckIn = this.attendance.check_in.clone();
+                // Continue with your logic using clonedCheckIn...
+            } else {
+                console.error('check_in is not defined or clone is not a function');
             }
-            return clonedObj;
         },
     });
 
@@ -116,10 +108,10 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
         events: _.extend(KioskConfirm.prototype.events, {
             "click .o_hr_attendance_sign_in_out_icon": _.debounce(function() {
                 this.handleKioskSignInOut(this.employee_id, this.next_action);
-            }.bind(this), 200, true),  // Properly bind the context
+            }, 200, true),
             "click .o_hr_attendance_pin_pad_button_ok": _.debounce(function() {
                 this.handlePinPadButton(this.employee_id, this.next_action, this.$('.o_hr_attendance_PINbox').val());
-            }.bind(this), 200, true),  // Properly bind the context
+            }, 200, true),
         }),
 
         getCurrentPosition: function() {
@@ -157,7 +149,7 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                         model: HR_EMPLOYEE_MODEL,
                         method: 'attendance_manual',
                         args: [[employee_id], next_action, pin],
-                        context: ctx,
+                        context: session.user_context,
                     });
                 }).then(this.handleResult.bind(this)).catch(this.handleGeolocationError.bind(this));
             }
