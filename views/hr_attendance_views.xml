@@ -19,8 +19,8 @@
             <field name="check_out" position="after">
                 <field name="in_location"/>
                 <field name="out_location"/>
-<!--                <field name="checkin_location"/>-->
-<!--                <field name="checkout_location"/>-->
+                <field name="checkin_location"/>
+                <field name="checkout_location"/>
 <!--                <field name="checkin_latitude"/>-->
 <!--                <field name="checkout_latitude"/>-->
 <!--                <field name="checkin_longitude"/>-->

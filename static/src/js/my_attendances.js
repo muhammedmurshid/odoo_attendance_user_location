@@ -166,12 +166,12 @@
                 }
             },
 
-            handleGeolocationError: function(error) { // Define handleGeolocationError for KioskConfirm
+            handleGeolocationError: function(error) {
                 const errorMessage = error.message || "Unable to get location.";
                 var MyDialog = new Dialog(null, {
                     title: error.__proto__.constructor.name,
                     size: "medium",
-                    $content: this.$('<main></main>', { // Use opening and closing tags
+                    $content: this.$('<main/>', {
                         role: 'alert',
                         text: errorMessage + ". Also check your site connection is secured!",
                     }),
