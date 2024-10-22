@@ -48,3 +48,5 @@ class HrAttendance(models.Model):
     out_location = fields.Char(string='Check Out Location',
                                store=True,
                                help="Check out location link of the User")
+    checkin_photo = fields.Binary("Check-in Photo", attachment=True)
+    checkout_photo = fields.Binary("Check-out Photo", attachment=True)
