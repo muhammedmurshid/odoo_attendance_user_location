@@ -91,13 +91,12 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                 });
             }
         },
-
         handleGeolocationError: function(error) {
             const errorMessage = error.message || "Unable to get location.";
             var MyDialog = new Dialog(null, {
                 title: error.__proto__.constructor.name,
                 size: "medium",
-                $content: this.$('<main/>', {
+                $content: $('<main>', {  // jQuery element creation
                     role: 'alert',
                     text: errorMessage + ". Also check your site connection is secured!",
                 }),
@@ -110,7 +109,27 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
                 }]
             });
             MyDialog.open();
-        },
+        }
+
+//        handleGeolocationError: function(error) {
+//            const errorMessage = error.message || "Unable to get location.";
+//            var MyDialog = new Dialog(null, {
+//                title: error.__proto__.constructor.name,
+//                size: "medium",
+//                $content: this.$('<main/>', {
+//                    role: 'alert',
+//                    text: errorMessage + ". Also check your site connection is secured!",
+//                }),
+//                buttons: [{
+//                    text: "OK",
+//                    classes: "btn-primary",
+//                    click: function() {
+//                        MyDialog.close();
+//                    }
+//                }]
+//            });
+//            MyDialog.open();
+//        },
 
     });
 
@@ -176,24 +195,24 @@ odoo.define('odoo_attendance_user_location.my_attendances', function(require) {
             }
         },
 
-        handleGeolocationError: function(error) {
-            const errorMessage = error.message || "Unable to get location.";
-            var MyDialog = new Dialog(null, {
-                title: error.__proto__.constructor.name,
-                size: "medium",
-                $content: this.$('<main/>', {
-                    role: 'alert',
-                    text: errorMessage + ". Also check your site connection is secured!",
-                }),
-                buttons: [{
-                    text: "OK",
-                    classes: "btn-primary",
-                    click: function() {
-                        MyDialog.close();
-                    }
-                }]
-            });
-            MyDialog.open();
-        },
+//        handleGeolocationError: function(error) {
+//            const errorMessage = error.message || "Unable to get location.";
+//            var MyDialog = new Dialog(null, {
+//                title: error.__proto__.constructor.name,
+//                size: "medium",
+//                $content: this.$('<main/>', {
+//                    role: 'alert',
+//                    text: errorMessage + ". Also check your site connection is secured!",
+//                }),
+//                buttons: [{
+//                    text: "OK",
+//                    classes: "btn-primary",
+//                    click: function() {
+//                        MyDialog.close();
+//                    }
+//                }]
+//            });
+//            MyDialog.open();
+//        },
     });
 });
