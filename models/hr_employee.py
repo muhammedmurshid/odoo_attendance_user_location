@@ -122,6 +122,7 @@ class HrEmployee(models.AbstractModel):
         attendance = self.env['hr.attendance'].search(
             [('employee_id', '=', self.id), ('check_out', '=', False)], limit=1)
         if attendance:
+            print('yes')
             attendance.write({
                 'checkout_address': address,
                 'checkout_latitude': latitudes,
