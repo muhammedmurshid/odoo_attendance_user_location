@@ -95,17 +95,25 @@ class HrEmployee(models.AbstractModel):
         if latitudes is None or longitudes is None:
             raise exceptions.UserError(_('Latitude and longitude must be provided.'))
 
-        # Geolocation logic...
+        # Initialize geolocator
+        geolocator = Nominatim(user_agent="odoo_attendance")
+
+        # Convert latitude and longitude to a location (reverse geocoding)
+        try:
+            location = geolocator.reverse(f"{latitudes}, {longitudes}")
+            address = location.address if location else 'Unknown location'
+        except Exception:
+            address = 'Unable to determine location'
 
         # Check-in logic
         if self.attendance_state != 'checked_in':
             vals = {
                 'employee_id': self.id,
-                'checkin_address': location.address,
+                'checkin_address': address,
                 'checkin_latitude': latitudes,
                 'checkin_longitude': longitudes,
-                'checkin_location': 'https://www.google.com/maps/place/' + location.address,
-                'in_location': location.address,
+                'checkin_location': 'https://www.google.com/maps/place/' + address,
+                'in_location': address,
                 'checkin_photo': checkin_photo  # Store the check-in photo
             }
             return self.env['hr.attendance'].create(vals)
@@ -115,11 +123,11 @@ class HrEmployee(models.AbstractModel):
             [('employee_id', '=', self.id), ('check_out', '=', False)], limit=1)
         if attendance:
             attendance.write({
-                'checkout_address': location.address,
+                'checkout_address': address,
                 'checkout_latitude': latitudes,
                 'checkout_longitude': longitudes,
-                'checkout_location': 'https://www.google.com/maps/place/' + location.address,
-                'out_location': location.address,
+                'checkout_location': 'https://www.google.com/maps/place/' + address,
+                'out_location': address,
                 'checkout_photo': checkout_photo  # Store the check-out photo
             })
             attendance.check_out = action_date
