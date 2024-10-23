@@ -86,8 +86,11 @@ class HrEmployee(models.AbstractModel):
         #          ('adjustment', '=', False)]).duration or 0
         return {'action': action_message}
 
-    def _attendance_action_change(self, longitudes, latitudes, checkin_photo=None, checkout_photo=None):
-        """ Check In/Check Out action with photo capture """
+    def _attendance_action_change(self, longitudes, latitudes):
+        """ Check In/Check Out action
+            Check In: create a new attendance record
+            Check Out: modify check_out field of appropriate attendance record
+        """
         self.ensure_one()
         action_date = fields.Datetime.now()
 
@@ -95,47 +98,49 @@ class HrEmployee(models.AbstractModel):
         if latitudes is None or longitudes is None:
             raise exceptions.UserError(_('Latitude and longitude must be provided.'))
 
-        # Initialize geolocator
-        geolocator = Nominatim(user_agent="odoo_attendance")
+        # Log the latitudes and longitudes for debugging
+        print(f"Latitude: {latitudes}, Longitude: {longitudes}")
 
-        # Convert latitude and longitude to a location (reverse geocoding)
+        # Create a geolocator object
+        geolocator = Nominatim(user_agent='my-app')
+
+        # Attempt to reverse geocode
         try:
             location = geolocator.reverse(f"{latitudes}, {longitudes}")
-            address = location.address if location else 'Unknown location'
-        except Exception:
-            address = 'Unable to determine location'
+        except Exception as e:
+            raise exceptions.UserError(_('Error retrieving location: %s') % str(e))
 
-        # Check-in logic
+        # Ensure location is valid
+        if location is None:
+            raise exceptions.UserError(_('Could not find location for the given coordinates.'))
+
+        print(location, 'location')
+
         if self.attendance_state != 'checked_in':
             vals = {
                 'employee_id': self.id,
-                'checkin_address': address,
+                'checkin_address': location.address,
                 'checkin_latitude': latitudes,
                 'checkin_longitude': longitudes,
-                'checkin_location': 'https://www.google.com/maps/place/' + address,
-                'in_location': address,
-                'checkin_photo': checkin_photo  # Store the check-in photo
+                'checkin_location': 'https://www.google.com/maps/place/' + location.address,
+                'in_location': location.address,
             }
             return self.env['hr.attendance'].create(vals)
 
-        # Check-out logic
         attendance = self.env['hr.attendance'].search(
             [('employee_id', '=', self.id), ('check_out', '=', False)], limit=1)
         if attendance:
-            print('yes')
             attendance.write({
-                'checkout_address': address,
+                'checkout_address': location.address,
                 'checkout_latitude': latitudes,
                 'checkout_longitude': longitudes,
-                'checkout_location': 'https://www.google.com/maps/place/' + address,
-                'out_location': address,
-                'checkout_photo': checkout_photo  # Store the check-out photo
+                'checkout_location': 'https://www.google.com/maps/place/' + location.address,
+                'out_location': location.address,
             })
             attendance.check_out = action_date
         else:
             raise exceptions.UserError(
-                _('Cannot perform check out on %(empl_name)s, could not find corresponding check in.') % {
+                _('Cannot perform check out on %(empl_name)s, could not find corresponding check in. Your attendances have probably been modified manually by human resources.') % {
                     'empl_name': self.sudo().name
                 })
         return attendance
-

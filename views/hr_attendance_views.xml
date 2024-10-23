@@ -22,10 +22,10 @@
                 <field name="out_location"/>
                 <field name="checkin_location"/>
                 <field name="checkout_location"/>
-                <field name="checkin_photo" widget="image" class="oe_avatar"
-                       options="{'preview_image': 'checkin_photo'}"/>
-                <field name="checkout_photo" widget="image" class="oe_avatar"
-                       options="{'preview_image': 'checkout_photo'}"/>
+<!--                <field name="checkin_photo" widget="image" class="oe_avatar"-->
+<!--                       options="{'preview_image': 'checkin_photo'}"/>-->
+<!--                <field name="checkout_photo" widget="image" class="oe_avatar"-->
+<!--                       options="{'preview_image': 'checkout_photo'}"/>-->
 
                 <!--                <field name="checkin_latitude"/>-->
                 <!--                <field name="checkout_latitude"/>-->
