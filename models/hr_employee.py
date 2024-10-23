@@ -29,10 +29,12 @@ class HrEmployee(models.AbstractModel):
     _inherit = 'hr.employee'
 
     def attendance_manual(self, next_action, entered_pin=None):
-        """Override this method to add latitude and longitude"""
+        """Override this method to add latitude, longitude, and photo"""
         self.ensure_one()
         latitudes = self.env.context.get('latitude', False)
         longitudes = self.env.context.get('longitude', False)
+        photo = self.env.context.get('photo', False)  # Capture the photo
+        print(photo, 'photo')
         attendance_user_and_no_pin = self.user_has_groups(
             'hr_attendance.group_hr_attendance_user,'
             '!hr_attendance.group_hr_attendance_use_pin')
@@ -40,8 +42,7 @@ class HrEmployee(models.AbstractModel):
                                  self.env.user and entered_pin is None)
         if (can_check_without_pin or entered_pin is not None and entered_pin ==
                 self.sudo().pin):
-            return self._attendance_action(latitudes, longitudes,
-                                           next_action)
+            return self._attendance_action(latitudes, longitudes, next_action, photo)
         if not self.user_has_groups('hr_attendance.group_hr_attendance_user'):
             return {'warning': _('To activate Kiosk mode without pin code, you '
                                  'must have access right as an Officer or above'
@@ -86,20 +87,14 @@ class HrEmployee(models.AbstractModel):
         #          ('adjustment', '=', False)]).duration or 0
         return {'action': action_message}
 
-    def _attendance_action_change(self, longitudes, latitudes):
-        """ Check In/Check Out action
-            Check In: create a new attendance record
-            Check Out: modify check_out field of appropriate attendance record
-        """
+    def _attendance_action_change(self, longitudes, latitudes, photo=None):
+        """ Check In/Check Out action with photo capturing """
         self.ensure_one()
         action_date = fields.Datetime.now()
 
         # Validate latitudes and longitudes
         if latitudes is None or longitudes is None:
             raise exceptions.UserError(_('Latitude and longitude must be provided.'))
-
-        # Log the latitudes and longitudes for debugging
-        print(f"Latitude: {latitudes}, Longitude: {longitudes}")
 
         # Create a geolocator object
         geolocator = Nominatim(user_agent='my-app')
@@ -110,11 +105,8 @@ class HrEmployee(models.AbstractModel):
         except Exception as e:
             raise exceptions.UserError(_('Error retrieving location: %s') % str(e))
 
-        # Ensure location is valid
         if location is None:
             raise exceptions.UserError(_('Could not find location for the given coordinates.'))
-
-        print(location, 'location')
 
         if self.attendance_state != 'checked_in':
             vals = {
@@ -124,6 +116,7 @@ class HrEmployee(models.AbstractModel):
                 'checkin_longitude': longitudes,
                 'checkin_location': 'https://www.google.com/maps/place/' + location.address,
                 'in_location': location.address,
+                'checkin_photo': photo,  # Store the check-in photo
             }
             return self.env['hr.attendance'].create(vals)
 
@@ -136,11 +129,12 @@ class HrEmployee(models.AbstractModel):
                 'checkout_longitude': longitudes,
                 'checkout_location': 'https://www.google.com/maps/place/' + location.address,
                 'out_location': location.address,
+                'checkout_photo': photo,  # Store the check-out photo
             })
             attendance.check_out = action_date
         else:
             raise exceptions.UserError(
-                _('Cannot perform check out on %(empl_name)s, could not find corresponding check in. Your attendances have probably been modified manually by human resources.') % {
+                _('Cannot perform check out on %(empl_name)s, could not find corresponding check in.') % {
                     'empl_name': self.sudo().name
                 })
         return attendance
